@@ -1,0 +1,36 @@
+name: website-product-monitor
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          pip install --upgrade pip
+          pip install requests beautifulsoup4
+
+      - name: Run monitor script
+        env:
+          MONITOR_URL: ${{ secrets.MONITOR_URL }}
+          CSS_SELECTOR: ${{ secrets.CSS_SELECTOR }}
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          SMS_TARGET: ${{ secrets.SMS_TARGET }}
+          MAX_NOTIFICATIONS_PER_RUN: ${{ secrets.MAX_NOTIFICATIONS_PER_RUN }}
+        run: |
+          python monitor.py
